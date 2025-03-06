@@ -1,0 +1,84 @@
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:v24.12.1-ls186
+    container_name: bookstack
+    hostname: bookstack
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - APP_URL=${APP_URL}
+      - APP_KEY=${APP_KEY}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - MAIL_DRIVER=${MAIL_DRIVER}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_FROM=${MAIL_FROM}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+      - AUTH_METHOD=${AUTH_METHOD}
+      - LDAP_SERVER=${LDAP_SERVER}
+      - LDAP_VERSION=${LDAP_VERSION}
+      - LDAP_BASE_DN=${LDAP_BASE_DN}
+      - LDAP_DN=${LDAP_DN}
+      - LDAP_PASS=${LDAP_PASS}
+      - LDAP_USER_FILTER=${LDAP_USER_FILTER}
+      - LDAP_ID_ATTRIBUTE=${LDAP_ID_ATTRIBUTE}
+      - LDAP_EMAIL_ATTRIBUTE=${LDAP_EMAIL_ATTRIBUTE}
+      - LDAP_DISPLAY_NAME_ATTRIBUTE=${LDAP_DISPLAY_NAME_ATTRIBUTE}
+      - LDAP_USER_TO_GROUPS=${LDAP_USER_TO_GROUPS}
+      - LDAP_GROUP_ATTRIBUTE=${LDAP_GROUP_ATTRIBUTE}
+      - LDAP_REMOVE_FROM_GROUPS=${LDAP_REMOVE_FROM_GROUPS}
+      - LDAP_GROUP_FILTER=${LDAP_GROUP_FILTER}
+      - LDAP_START_TLS=${LDAP_START_TLS}
+      - LDAP_DUMP_USER_DETAILS=${LDAP_DUMP_USER_DETAILS}        
+      - APP_DEBUG=${APP_DEBUG}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+    volumes:
+      - ./bookstack/config:/config
+    ports:
+      - 6875:80
+    depends_on:
+      - bookstack_db
+    restart: unless-stopped
+    networks:
+      - default
+      - net-bookstack
+
+  bookstack_db:
+    image: mariadb:10.5
+    container_name: bookstack_db
+    hostname: bookstack_db
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ./bookstack/db:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+    restart: unless-stopped
+    networks:
+      - net-bookstack
+
+networks:
+  net-bookstack:
+    name: net-bookstack
+    external: true
+
